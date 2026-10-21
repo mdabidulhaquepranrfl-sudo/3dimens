@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/css/jquery.dataTables.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50: '#f0f4ff', 100: '#dce6fe', 500: '#4f72d9', 600: '#3b5dc8', 700: '#2e4aad' },
+                        surface: '#f8f9fc',
+                    },
+                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        #sidebar {
+            transition: width 0.25s ease;
+        }
+
+        .nav-link {
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .nav-link.active,
+        .nav-link:hover {
+            background: rgba(79, 114, 217, 0.12);
+            color: #4f72d9;
+        }
+
+        .nav-link.active .nav-icon,
+        .nav-link:hover .nav-icon {
+            color: #4f72d9;
+        }
+
+        table.dataTable thead th {
+            background: #f8f9fc;
+            color: #374151;
+            font-weight: 600;
+            font-size: 0.75rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        table.dataTable tbody tr:hover {
+            background: #f0f4ff;
+        }
+
+        table.dataTable {
+            border-collapse: collapse !important;
+        }
+
+        table.dataTable td,
+        table.dataTable th {
+            padding: 10px 14px !important;
+            border-bottom: 1px solid #f1f3f9 !important;
+        }
+
+        .dataTables_wrapper .dataTables_filter input {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 5px 10px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .dataTables_wrapper .dataTables_filter input:focus {
+            border-color: #4f72d9;
+            box-shadow: 0 0 0 2px rgba(79, 114, 217, 0.15);
+        }
+
+        .dataTables_wrapper .dataTables_length select {
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.85rem;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button {
+            border-radius: 5px !important;
+            border: none !important;
+            padding: 4px 10px !important;
+            font-size: 0.82rem !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #4f72d9 !important;
+            color: #fff !important;
+        }
+
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover:not(.current) {
+            background: #f0f4ff !important;
+            color: #4f72d9 !important;
+        }
+
+        .modal-backdrop {
+            background: rgba(15, 20, 40, 0.45);
+            backdrop-filter: blur(2px);
+        }
+
+        .btn-primary {
+            background: #4f72d9;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #3b5dc8;
+        }
+
+        .btn-secondary {
+            background: #f1f3f9;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #4f72d9 !important;
+            box-shadow: 0 0 0 3px rgba(79, 114, 217, 0.12) !important;
+            outline: none;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 10px;
+            border-radius: 99px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .sidebar-collapsed #sidebar-text {
+            display: none;
+        }
+    </style>
+</head>
+
+<body class="bg-surface min-h-screen flex">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar"
+        class="w-60 min-h-screen bg-white border-r border-gray-100 flex flex-col flex-shrink-0 z-20 shadow-sm">
+        <div class="flex items-center gap-3 px-5 py-5 border-b border-gray-100">
+            <div class="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
+                <i class="fa-solid fa-store text-white text-sm"></i>
+            </div>
+            <span class="font-semibold text-gray-800 text-base tracking-tight">ShopAdmin</span>
+        </div>
+        <nav class="flex-1 py-4 px-3 space-y-0.5">
+            <p class="text-xs font-semibold text-gray-400 px-3 pt-2 pb-1 uppercase tracking-widest">Menu</p>
+            <a href="#"
+                class="nav-link active flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 font-medium text-sm cursor-pointer"
+                data-page="products">
+                <i class="nav-icon fa-solid fa-box-open text-gray-400 w-4 text-center"></i>
+                <span>Products</span>
+            </a>
+            <a href="#"
+                class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 font-medium text-sm cursor-pointer"
+                data-page="customers">
+                <i class="nav-icon fa-solid fa-users text-gray-400 w-4 text-center"></i>
+                <span>Customers</span>
+            </a>
+            <a href="#"
+                class="nav-link flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-600 font-medium text-sm cursor-pointer"
+                data-page="orders">
+                <i class="nav-icon fa-solid fa-receipt text-gray-400 w-4 text-center"></i>
+                <span>Orders</span>
+            </a>
+        </nav>
+        <div class="px-4 py-4 border-t border-gray-100">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-brand-100 flex items-center justify-center">
+                    <span class="text-brand-600 font-semibold text-xs">AD</span>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-700">Admin</p>
+                    <p class="text-xs text-gray-400">admin@shop.com</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="flex-1 flex flex-col min-w-0">
+
+        <!-- TOP BAR -->
+        <header
+            class="bg-white border-b border-gray-100 px-6 py-3.5 flex items-center justify-between sticky top-0 z-10">
+            <div>
+                <h1 id="page-title" class="text-base font-semibold text-gray-800">Products</h1>
+                <p id="page-sub" class="text-xs text-gray-400 mt-0.5">Manage your product catalog</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="main-action-btn" onclick="showPage('product-add')"
+                    class="btn-primary text-sm font-medium px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span id="main-action-text">Add Product</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- PAGES CONTAINER -->
+        <main class="flex-1 p-6">
+
+            <!-- ===================== PRODUCTS LIST ===================== -->
+            <div id="page-products" class="page active">
+                <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                        <p class="text-sm font-semibold text-gray-700">All Products</p>
+                        <span class="badge bg-brand-50 text-brand-600">12 items</span>
+                    </div>
+                    <div class="p-4 overflow-x-auto">
+                        <table id="productsTable" class="w-full">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Image</th>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Size</th>
+                                    <th>Price</th>
+                                    <th>Selling Price</th>
+                                    <th>Created At</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-gray-500 text-sm">1</td>
+                                    <td><img src="https://placehold.co/40x40/e0e7ff/4f72d9?text=P"
+                                            class="w-10 h-10 rounded-lg object-cover" /></td>
+                                    <td class="font-medium text-gray-800 text-sm">Classic White Tee</td>
+                                    <td><span class="badge bg-gray-100 text-gray-600">T-Shirt</span></td>
+                                    <td class="text-sm text-gray-600">M, L, XL</td>
+                                    <td class="text-sm text-gray-500">৳ 450</td>
+                                    <td class="text-sm font-semibold text-gray-800">৳ 380</td>
+                                    <td class="text-xs text-gray-400">2024-01-10</td>
+                                    <td class="text-right">
+                                        <div class="flex items-center justify-end gap-1">
+                                            <button onclick="showPage('product-view')"
+                                                class="p-1.5 rounded-lg hover:bg-blue-50 text-blue-500 transition-colors"
+                                                title="View"><i class="fa-solid fa-eye text-xs"></i></button>
+                                            <button onclick="showPage('product-edit')"
+                                                class="p-1.5 rounded-lg hover:bg-amber-50 text-amber-500 transition-colors"
+                                                title="Edit"><i class="fa-solid fa-pen text-xs"></i></button>
+                                            <button onclick="confirmDelete('product')"
+                                                class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-colors"
+                                                title="Delete"><i class="fa-solid fa-trash text-xs"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-gray-500 text-sm">2</td>
+                                    <td><img src="https://placehold.co/40x40/fce7f3/db2777?text=P"
+                                            class="w-10 h-10 rounded-lg object-cover" /></td>
+                                    <td class="font-medium text-gray-800 text-sm">Floral Summer Dress</td>
+                                    <td><span class="badge bg-pink-50 text-pink-600">Dress</span></td>
+                                    <td class="text-sm text-gray-600">S, M</td>
+                                    <td class="text-sm text-gray-500">৳ 1,200</td>
+                                    <td class="text-sm font-semibold text-gray-800">৳ 950</td>
+                                    <td class="text-xs text-gray-400">2024-01-12</td>
+                                    <td class="text-right">
+                                        <div class="flex items-center justify-end gap-1">
+                                            <button onclick="showPage('product-view')"
+                                                class="p-1.5 rounded-lg hover:bg-blue-50 text-blue-500 transition-colors"
+                                                title="View"><i class="fa-solid fa-eye text-xs"></i></button>
+                                            <button onclick="showPage('product-edit')"
+                                                class="p-1.5 rounded-lg hover:bg-amber-50 text-amber-500 transition-colors"
+                                                title="Edit"><i class="fa-solid fa-pen text-xs"></i></button>
+                                            <button onclick="confirmDelete('product')"
+                                                class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-colors"
+                                                title="Delete"><i class="fa-solid fa-trash text-xs"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-gray-500 text-sm">3</td>
+                                    <td><img src="https://placehold.co/40x40/dcfce7/16a34a?text=P"
+                                            class="w-10 h-10 rounded-lg object-cover" /></td>
+                                    <td class="font-medium text-gray-800 text-sm">Slim Fit Chinos</td>
+                                    <td><span class="badge bg-green-50 text-green-700">Pants</span></td>
+                                    <td class="text-sm text-gray-600">32, 34, 36</td>
+                                    <td class="text-sm text-gray-500">৳ 800</td>
+                                    <td class="text-sm font-semibold text-gray-800">৳ 650</td>
+                                    <td class="text-xs text-gray-400">2024-01-15</td>
+                                    <td class="text-right">
+                                        <div class="flex items-center justify-end gap-1">
+                                            <button onclick="showPage('product-view')"
+                                                class="p-1.5 rounded-lg hover:bg-blue-50 text-blue-500 transition-colors"
+                                                title="View"><i class="fa-solid fa-eye text-xs"></i></button>
+                                            <button onclick="showPage('product-edit')"
+                                                class="p-1.5 rounded-lg hover:bg-amber-50 text-amber-500 transition-colors"
+                                                title="Edit"><i class="fa-solid fa-pen text-xs"></i></button>
+                                            <button onclick="confirmDelete('product')"
+                                                class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-colors"
+                                                title="Delete"><i class="fa-solid fa-trash text-xs"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== PRODUCT ADD ===================== -->
+            <div id="page-product-add" class="page">
+                <div class="max-w-2xl mx-auto">
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+                            <button onclick="showPage('products')"
+                                class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors">
+                                <i class="fa-solid fa-arrow-left text-sm"></i>
+                            </button>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Add New Product</p>
+                                <p class="text-xs text-gray-400">Fill in the product details below</p>
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-5">
+                            <div class="grid grid-cols-1 gap-5">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Product Name <span
+                                            class="text-red-400">*</span></label>
+                                    <input type="text" placeholder="e.g. Classic White Tee"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 transition-all" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Product Link <span
+                                            class="text-red-400">*</span></label>
+                                    <input type="url" placeholder="https://..."
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 transition-all" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Image URL</label>
+                                    <input type="url" placeholder="https://..."
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 transition-all" />
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">Category</label>
+                                        <input type="text" placeholder="e.g. T-Shirt"
+                                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 transition-all" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">Size</label>
+                                        <input type="text" placeholder="e.g. S, M, L, XL"
+                                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 transition-all" />
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">Price
+                                            (৳)</label>
+                                        <input type="number" placeholder="0.00"
+                                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 transition-all" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">Selling Price
+                                            (৳) <span class="text-red-400">*</span></label>
+                                        <input type="number" placeholder="0.00"
+                                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 transition-all" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-end gap-3 pt-2">
+                                <button onclick="showPage('products')"
+                                    class="btn-secondary text-sm font-medium px-4 py-2 rounded-lg transition-colors">Cancel</button>
+                                <button
+                                    class="btn-primary text-sm font-medium px-5 py-2 rounded-lg transition-colors flex items-center gap-2">
+                                    <i class="fa-solid fa-check text-xs"></i> Save Product
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== PRODUCT EDIT ===================== -->
+            <div id="page-product-edit" class="page">
+                <div class="max-w-2xl mx-auto">
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+                            <button onclick="showPage('products')"
+                                class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors">
+                                <i class="fa-solid fa-arrow-left text-sm"></i>
+                            </button>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Edit Product</p>
+                                <p class="text-xs text-gray-400">Update product information</p>
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-5">
+                            <div class="grid grid-cols-1 gap-5">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Product Name <span
+                                            class="text-red-400">*</span></label>
+                                    <input type="text" value="Classic White Tee"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 transition-all" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Product Link <span
+                                            class="text-red-400">*</span></label>
+                                    <input type="url" value="https://example.com/classic-white-tee"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 transition-all" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Image URL</label>
+                                    <input type="url" value="https://example.com/img/tee.jpg"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 transition-all" />
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">Category</label>
+                                        <input type="text" value="T-Shirt"
+                                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 transition-all" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">Size</label>
+                                        <input type="text" value="M, L, XL"
+                                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 transition-all" />
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">Price
+                                            (৳)</label>
+                                        <input type="number" value="450"
+                                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 transition-all" />
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-gray-600 mb-1.5">Selling Price
+                                            (৳) <span class="text-red-400">*</span></label>
+                                        <input type="number" value="380"
+                                            class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 transition-all" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-2">
+                                <p class="text-xs text-gray-400">Last updated: 2024-01-10 by Admin</p>
+                                <div class="flex items-center gap-3">
+                                    <button onclick="showPage('products')"
+                                        class="btn-secondary text-sm font-medium px-4 py-2 rounded-lg transition-colors">Cancel</button>
+                                    <button
+                                        class="btn-primary text-sm font-medium px-5 py-2 rounded-lg transition-colors flex items-center gap-2">
+                                        <i class="fa-solid fa-check text-xs"></i> Update Product
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== PRODUCT VIEW ===================== -->
+            <div id="page-product-view" class="page">
+                <div class="max-w-2xl mx-auto">
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <button onclick="showPage('products')"
+                                    class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors">
+                                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                                </button>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-800">Product Details</p>
+                                    <p class="text-xs text-gray-400">View product information</p>
+                                </div>
+                            </div>
+                            <button onclick="showPage('product-edit')"
+                                class="btn-primary text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+                                <i class="fa-solid fa-pen text-xs"></i> Edit
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-start gap-5 mb-6">
+                                <img src="https://placehold.co/96x96/e0e7ff/4f72d9?text=Tee"
+                                    class="w-24 h-24 rounded-xl object-cover border border-gray-100" />
+                                <div>
+                                    <h2 class="text-lg font-semibold text-gray-800">Classic White Tee</h2>
+                                    <span class="badge bg-gray-100 text-gray-600 mt-1">T-Shirt</span>
+                                    <div class="mt-2 flex items-center gap-3">
+                                        <span class="text-2xl font-bold text-brand-600">৳ 380</span>
+                                        <span class="text-sm text-gray-400 line-through">৳ 450</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <p class="text-xs text-gray-400 mb-0.5">Size</p>
+                                    <p class="text-sm font-medium text-gray-700">M, L, XL</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <p class="text-xs text-gray-400 mb-0.5">Product Link</p>
+                                    <a href="#" class="text-sm font-medium text-brand-600 truncate block">View on site
+                                        →</a>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <p class="text-xs text-gray-400 mb-0.5">Created At</p>
+                                    <p class="text-sm font-medium text-gray-700">Jan 10, 2024</p>
+                                </div>
+                                <div class="bg-gray-50 rounded-lg p-3">
+                                    <p class="text-xs text-gray-400 mb-0.5">Created By</p>
+                                    <p class="text-sm font-medium text-gray-700">Admin</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== CUSTOMERS LIST ===================== -->
+            <div id="page-customers" class="page">
+                <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                        <p class="text-sm font-semibold text-gray-700">All Customers</p>
+                        <span class="badge bg-brand-50 text-brand-600">8 customers</span>
+                    </div>
+                    <div class="p-4 overflow-x-auto">
+                        <table id="customersTable" class="w-full">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Orders</th>
+                                    <th>Created At</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-gray-500 text-sm">1</td>
+                                    <td>
+                                        <div class="flex items-center gap-2">
+                                            <div
+                                                class="w-7 h-7 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0">
+                                                <span class="text-brand-600 font-semibold text-xs">RA</span>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-800">Rahim Ahmed</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-sm text-gray-600">01711-000001</td>
+                                    <td><span class="badge bg-brand-50 text-brand-600">3 orders</span></td>
+                                    <td class="text-xs text-gray-400">Jan 08, 2024</td>
+                                    <td class="text-right">
+                                        <div class="flex items-center justify-end gap-1">
+                                            <button onclick="showPage('customer-view')"
+                                                class="p-1.5 rounded-lg hover:bg-blue-50 text-blue-500 transition-colors"
+                                                title="View"><i class="fa-solid fa-eye text-xs"></i></button>
+                                            <button onclick="showPage('customer-edit')"
+                                                class="p-1.5 rounded-lg hover:bg-amber-50 text-amber-500 transition-colors"
+                                                title="Edit"><i class="fa-solid fa-pen text-xs"></i></button>
+                                            <button onclick="confirmDelete('customer')"
+                                                class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-colors"
+                                                title="Delete"><i class="fa-solid fa-trash text-xs"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-gray-500 text-sm">2</td>
+                                    <td>
+                                        <div class="flex items-center gap-2">
+                                            <div
+                                                class="w-7 h-7 rounded-full bg-pink-100 flex items-center justify-center flex-shrink-0">
+                                                <span class="text-pink-600 font-semibold text-xs">SK</span>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-800">Sumaiya Khatun</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-sm text-gray-600">01811-000002</td>
+                                    <td><span class="badge bg-brand-50 text-brand-600">1 order</span></td>
+                                    <td class="text-xs text-gray-400">Jan 09, 2024</td>
+                                    <td class="text-right">
+                                        <div class="flex items-center justify-end gap-1">
+                                            <button onclick="showPage('customer-view')"
+                                                class="p-1.5 rounded-lg hover:bg-blue-50 text-blue-500 transition-colors"
+                                                title="View"><i class="fa-solid fa-eye text-xs"></i></button>
+                                            <button onclick="showPage('customer-edit')"
+                                                class="p-1.5 rounded-lg hover:bg-amber-50 text-amber-500 transition-colors"
+                                                title="Edit"><i class="fa-solid fa-pen text-xs"></i></button>
+                                            <button onclick="confirmDelete('customer')"
+                                                class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-colors"
+                                                title="Delete"><i class="fa-solid fa-trash text-xs"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-gray-500 text-sm">3</td>
+                                    <td>
+                                        <div class="flex items-center gap-2">
+                                            <div
+                                                class="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
+                                                <span class="text-green-600 font-semibold text-xs">MI</span>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-800">Milon Islam</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-sm text-gray-600">01911-000003</td>
+                                    <td><span class="badge bg-brand-50 text-brand-600">5 orders</span></td>
+                                    <td class="text-xs text-gray-400">Jan 11, 2024</td>
+                                    <td class="text-right">
+                                        <div class="flex items-center justify-end gap-1">
+                                            <button onclick="showPage('customer-view')"
+                                                class="p-1.5 rounded-lg hover:bg-blue-50 text-blue-500 transition-colors"
+                                                title="View"><i class="fa-solid fa-eye text-xs"></i></button>
+                                            <button onclick="showPage('customer-edit')"
+                                                class="p-1.5 rounded-lg hover:bg-amber-50 text-amber-500 transition-colors"
+                                                title="Edit"><i class="fa-solid fa-pen text-xs"></i></button>
+                                            <button onclick="confirmDelete('customer')"
+                                                class="p-1.5 rounded-lg hover:bg-red-50 text-red-400 transition-colors"
+                                                title="Delete"><i class="fa-solid fa-trash text-xs"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== CUSTOMER ADD ===================== -->
+            <div id="page-customer-add" class="page">
+                <div class="max-w-md mx-auto">
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+                            <button onclick="showPage('customers')"
+                                class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors">
+                                <i class="fa-solid fa-arrow-left text-sm"></i>
+                            </button>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Add New Customer</p>
+                                <p class="text-xs text-gray-400">Enter customer details</p>
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1.5">Full Name <span
+                                        class="text-red-400">*</span></label>
+                                <input type="text" placeholder="Customer full name"
+                                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 transition-all" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1.5">Phone Number <span
+                                        class="text-red-400">*</span></label>
+                                <input type="tel" placeholder="01X-XXXXXXXX"
+                                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 transition-all" />
+                                <p class="text-xs text-gray-400 mt-1">Must be unique per customer</p>
+                            </div>
+                            <div class="flex items-center justify-end gap-3 pt-2">
+                                <button onclick="showPage('customers')"
+                                    class="btn-secondary text-sm font-medium px-4 py-2 rounded-lg transition-colors">Cancel</button>
+                                <button
+                                    class="btn-primary text-sm font-medium px-5 py-2 rounded-lg transition-colors flex items-center gap-2">
+                                    <i class="fa-solid fa-check text-xs"></i> Save Customer
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== CUSTOMER EDIT ===================== -->
+            <div id="page-customer-edit" class="page">
+                <div class="max-w-md mx-auto">
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+                            <button onclick="showPage('customers')"
+                                class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors">
+                                <i class="fa-solid fa-arrow-left text-sm"></i>
+                            </button>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Edit Customer</p>
+                                <p class="text-xs text-gray-400">Update customer details</p>
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1.5">Full Name <span
+                                        class="text-red-400">*</span></label>
+                                <input type="text" value="Rahim Ahmed"
+                                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 transition-all" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1.5">Phone Number <span
+                                        class="text-red-400">*</span></label>
+                                <input type="tel" value="01711-000001"
+                                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 transition-all" />
+                            </div>
+                            <div class="flex items-center justify-between pt-2">
+                                <p class="text-xs text-gray-400">Added: Jan 08, 2024</p>
+                                <div class="flex items-center gap-3">
+                                    <button onclick="showPage('customers')"
+                                        class="btn-secondary text-sm font-medium px-4 py-2 rounded-lg transition-colors">Cancel</button>
+                                    <button
+                                        class="btn-primary text-sm font-medium px-5 py-2 rounded-lg transition-colors flex items-center gap-2">
+                                        <i class="fa-solid fa-check text-xs"></i> Update
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== CUSTOMER VIEW ===================== -->
+            <div id="page-customer-view" class="page">
+                <div class="max-w-2xl mx-auto space-y-4">
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <button onclick="showPage('customers')"
+                                    class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">
+                                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                                </button>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-800">Customer Profile</p>
+                                    <p class="text-xs text-gray-400">Customer details & order history</p>
+                                </div>
+                            </div>
+                            <button onclick="showPage('customer-edit')"
+                                class="btn-primary text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+                                <i class="fa-solid fa-pen text-xs"></i> Edit
+                            </button>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-center gap-4 mb-5">
+                                <div class="w-14 h-14 rounded-full bg-brand-100 flex items-center justify-center">
+                                    <span class="text-brand-600 font-bold text-xl">RA</span>
+                                </div>
+                                <div>
+                                    <h2 class="text-base font-semibold text-gray-800">Rahim Ahmed</h2>
+                                    <p class="text-sm text-gray-500 mt-0.5"><i
+                                            class="fa-solid fa-phone text-xs mr-1"></i>01711-000001</p>
+                                    <p class="text-xs text-gray-400 mt-0.5">Customer since Jan 08, 2024</p>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-3">
+                                <div class="bg-brand-50 rounded-lg p-3 text-center">
+                                    <p class="text-xl font-bold text-brand-600">3</p>
+                                    <p class="text-xs text-gray-500">Total Orders</p>
+                                </div>
+                                <div class="bg-green-50 rounded-lg p-3 text-center">
+                                    <p class="text-xl font-bold text-green-600">২</p>
+                                    <p class="text-xs text-gray-500">Delivered</p>
+                                </div>
+                                <div class="bg-amber-50 rounded-lg p-3 text-center">
+                                    <p class="text-xl font-bold text-amber-600">১</p>
+                                    <p class="text-xs text-gray-500">Pending</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Recent Orders of Customer -->
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="px-5 py-3.5 border-b border-gray-100">
+                            <p class="text-sm font-semibold text-gray-700">Recent Orders</p>
+                        </div>
+                        <div class="divide-y divide-gray-50">
+                            <div class="px-5 py-3 flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800">#ORD-001</p>
+                                    <p class="text-xs text-gray-400">Jan 15, 2024 · 2 items</p>
+                                </div>
+                                <span class="badge bg-green-50 text-green-600">Delivered</span>
+                            </div>
+                            <div class="px-5 py-3 flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-800">#ORD-004</p>
+                                    <p class="text-xs text-gray-400">Jan 20, 2024 · 1 item</p>
+                                </div>
+                                <span class="badge bg-amber-50 text-amber-600">Processing</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== ORDERS LIST ===================== -->
+            <div id="page-orders" class="page">
+                <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                        <p class="text-sm font-semibold text-gray-700">All Orders</p>
+                        <span class="badge bg-brand-50 text-brand-600">5 orders</span>
+                    </div>
+                    <div class="p-4 overflow-x-auto">
+                        <table id="ordersTable" class="w-full">
+                            <thead>
+                                <tr>
+                                    <th>Order No</th>
+                                    <th>Customer</th>
+                                    <th>Phone</th>
+                                    <th>Order Date</th>
+                                    <th>Exp. Delivery</th>
+                                    <th>Thana</th>
+                                    <th>Status</th>
+                                    <th class="text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="text-sm font-medium text-brand-600">#ORD-001</td>
+                                    <td class="text-sm font-medium text-gray-800">Rahim Ahmed</td>
+                                    <td class="text-sm text-gray-500">01711-000001</td>
+                                    <td class="text-xs text-gray-500">Jan 15, 2024</td>
+                                    <td class="text-xs text-gray-500">Jan 18, 2024</td>
+                                    <td class="text-xs text-gray-600">Bogra Sadar</td>
+                                    <td><span class="badge bg-green-50 text-green-600">Delivered</span></td>
+                                    <td class="text-right">
+                                        <div class="flex items-center justify-end gap-1">
+                                            <button onclick="showPage('order-view')"
+                                                class="p-1.5 rounded-lg hover:bg-blue-50 text-blue-500 transition-colors"
+                                                title="View"><i class="fa-solid fa-eye text-xs"></i></button>
+                                            <button onclick="showPage('order-edit')"
+                                                class="p-1.5 rounded-lg hover:bg-amber-50 text-amber-500 transition-colors"
+                                                title="Edit"><i class="fa-solid fa-pen text-xs"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-sm font-medium text-brand-600">#ORD-002</td>
+                                    <td class="text-sm font-medium text-gray-800">Sumaiya Khatun</td>
+                                    <td class="text-sm text-gray-500">01811-000002</td>
+                                    <td class="text-xs text-gray-500">Jan 16, 2024</td>
+                                    <td class="text-xs text-gray-500">Jan 19, 2024</td>
+                                    <td class="text-xs text-gray-600">Shibganj</td>
+                                    <td><span class="badge bg-amber-50 text-amber-600">Processing</span></td>
+                                    <td class="text-right">
+                                        <div class="flex items-center justify-end gap-1">
+                                            <button onclick="showPage('order-view')"
+                                                class="p-1.5 rounded-lg hover:bg-blue-50 text-blue-500 transition-colors"
+                                                title="View"><i class="fa-solid fa-eye text-xs"></i></button>
+                                            <button onclick="showPage('order-edit')"
+                                                class="p-1.5 rounded-lg hover:bg-amber-50 text-amber-500 transition-colors"
+                                                title="Edit"><i class="fa-solid fa-pen text-xs"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-sm font-medium text-brand-600">#ORD-003</td>
+                                    <td class="text-sm font-medium text-gray-800">Milon Islam</td>
+                                    <td class="text-sm text-gray-500">01911-000003</td>
+                                    <td class="text-xs text-gray-500">Jan 17, 2024</td>
+                                    <td class="text-xs text-gray-500">Jan 20, 2024</td>
+                                    <td class="text-xs text-gray-600">Kahaloo</td>
+                                    <td><span class="badge bg-blue-50 text-blue-600">Shipped</span></td>
+                                    <td class="text-right">
+                                        <div class="flex items-center justify-end gap-1">
+                                            <button onclick="showPage('order-view')"
+                                                class="p-1.5 rounded-lg hover:bg-blue-50 text-blue-500 transition-colors"
+                                                title="View"><i class="fa-solid fa-eye text-xs"></i></button>
+                                            <button onclick="showPage('order-edit')"
+                                                class="p-1.5 rounded-lg hover:bg-amber-50 text-amber-500 transition-colors"
+                                                title="Edit"><i class="fa-solid fa-pen text-xs"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-sm font-medium text-brand-600">#ORD-004</td>
+                                    <td class="text-sm font-medium text-gray-800">Rahim Ahmed</td>
+                                    <td class="text-sm text-gray-500">01711-000001</td>
+                                    <td class="text-xs text-gray-500">Jan 20, 2024</td>
+                                    <td class="text-xs text-gray-500">Jan 23, 2024</td>
+                                    <td class="text-xs text-gray-600">Bogra Sadar</td>
+                                    <td><span class="badge bg-gray-100 text-gray-500">Pending</span></td>
+                                    <td class="text-right">
+                                        <div class="flex items-center justify-end gap-1">
+                                            <button onclick="showPage('order-view')"
+                                                class="p-1.5 rounded-lg hover:bg-blue-50 text-blue-500 transition-colors"
+                                                title="View"><i class="fa-solid fa-eye text-xs"></i></button>
+                                            <button onclick="showPage('order-edit')"
+                                                class="p-1.5 rounded-lg hover:bg-amber-50 text-amber-500 transition-colors"
+                                                title="Edit"><i class="fa-solid fa-pen text-xs"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== ORDER ADD ===================== -->
+            <div id="page-order-add" class="page">
+                <div class="max-w-3xl mx-auto space-y-4">
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+                            <button onclick="showPage('orders')"
+                                class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">
+                                <i class="fa-solid fa-arrow-left text-sm"></i>
+                            </button>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">New Order</p>
+                                <p class="text-xs text-gray-400">Create a new customer order</p>
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-5">
+                            <!-- Customer Select -->
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1.5">Customer <span
+                                        class="text-red-400">*</span></label>
+                                <div class="flex gap-2">
+                                    <select id="customerSelect"
+                                        class="flex-1 border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 transition-all bg-white">
+                                        <option value="">Select a customer...</option>
+                                        <option value="add" class="text-brand-600 font-medium">+ Add New Customer
+                                        </option>
+                                        <option value="1">Rahim Ahmed — 01711-000001</option>
+                                        <option value="2">Sumaiya Khatun — 01811-000002</option>
+                                        <option value="3">Milon Islam — 01911-000003</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Order Date</label>
+                                    <input type="date"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 transition-all"
+                                        value="2024-01-21" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Expected
+                                        Delivery</label>
+                                    <input type="date"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 transition-all" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1.5">Delivery Address</label>
+                                <textarea rows="2" placeholder="Full delivery address..."
+                                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 resize-none transition-all"></textarea>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Thana</label>
+                                    <select
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 bg-white transition-all">
+                                        <option>Select Thana...</option>
+                                        <option>Bogra Sadar</option>
+                                        <option>Shibganj</option>
+                                        <option>Kahaloo</option>
+                                        <option>Sherpur</option>
+                                        <option>Dhunat</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Status</label>
+                                    <select
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 bg-white transition-all">
+                                        <option value="pending">Pending</option>
+                                        <option value="processing">Processing</option>
+                                        <option value="shipped">Shipped</option>
+                                        <option value="delivered">Delivered</option>
+                                        <option value="cancelled">Cancelled</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Items -->
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between">
+                            <p class="text-sm font-semibold text-gray-700">Order Items</p>
+                            <button onclick="addOrderRow()"
+                                class="text-xs font-medium text-brand-600 hover:text-brand-700 flex items-center gap-1">
+                                <i class="fa-solid fa-plus text-xs"></i> Add Item
+                            </button>
+                        </div>
+                        <div class="p-4">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                                        <th class="text-left pb-2 pr-3">Product</th>
+                                        <th class="text-left pb-2 pr-3 w-20">Qty</th>
+                                        <th class="text-left pb-2 pr-3 w-28">Making Price</th>
+                                        <th class="text-left pb-2 pr-3 w-28">Asking Price</th>
+                                        <th class="text-left pb-2 pr-3 w-28">Selling Price</th>
+                                        <th class="w-8"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orderItemsBody">
+                                    <tr class="border-t border-gray-100">
+                                        <td class="py-2 pr-3">
+                                            <select
+                                                class="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm bg-white">
+                                                <option>Select product...</option>
+                                                <option>Classic White Tee</option>
+                                                <option>Floral Summer Dress</option>
+                                                <option>Slim Fit Chinos</option>
+                                            </select>
+                                        </td>
+                                        <td class="py-2 pr-3"><input type="number" value="1" min="1"
+                                                class="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm" />
+                                        </td>
+                                        <td class="py-2 pr-3"><input type="number" placeholder="৳"
+                                                class="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm" />
+                                        </td>
+                                        <td class="py-2 pr-3"><input type="number" placeholder="৳"
+                                                class="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm" />
+                                        </td>
+                                        <td class="py-2 pr-3"><input type="number" placeholder="৳"
+                                                class="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm" />
+                                        </td>
+                                        <td class="py-2"><button class="text-red-400 hover:text-red-600"
+                                                onclick="$(this).closest('tr').remove()"><i
+                                                    class="fa-solid fa-times text-xs"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="px-5 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
+                            <button onclick="showPage('orders')"
+                                class="btn-secondary text-sm font-medium px-4 py-2 rounded-lg">Cancel</button>
+                            <button
+                                class="btn-primary text-sm font-medium px-5 py-2 rounded-lg flex items-center gap-2">
+                                <i class="fa-solid fa-check text-xs"></i> Place Order
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== ORDER EDIT ===================== -->
+            <div id="page-order-edit" class="page">
+                <div class="max-w-3xl mx-auto space-y-4">
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+                            <button onclick="showPage('orders')"
+                                class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">
+                                <i class="fa-solid fa-arrow-left text-sm"></i>
+                            </button>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">Edit Order <span
+                                        class="text-brand-600">#ORD-001</span></p>
+                                <p class="text-xs text-gray-400">Update order information</p>
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-5">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1.5">Customer</label>
+                                <select
+                                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 bg-white">
+                                    <option selected>Rahim Ahmed — 01711-000001</option>
+                                    <option>Sumaiya Khatun — 01811-000002</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Order Date</label>
+                                    <input type="date" value="2024-01-15"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 transition-all" />
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Expected
+                                        Delivery</label>
+                                    <input type="date" value="2024-01-18"
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 transition-all" />
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1.5">Delivery Address</label>
+                                <textarea rows="2"
+                                    class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 resize-none transition-all">House 12, Road 3, Bogra Sadar</textarea>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Thana</label>
+                                    <select
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 bg-white">
+                                        <option selected>Bogra Sadar</option>
+                                        <option>Shibganj</option>
+                                        <option>Kahaloo</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Status</label>
+                                    <select
+                                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 bg-white">
+                                        <option>Pending</option>
+                                        <option>Processing</option>
+                                        <option>Shipped</option>
+                                        <option selected>Delivered</option>
+                                        <option>Cancelled</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Edit Order Items -->
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between">
+                            <p class="text-sm font-semibold text-gray-700">Order Items</p>
+                            <button onclick="addOrderRow()"
+                                class="text-xs font-medium text-brand-600 hover:text-brand-700 flex items-center gap-1">
+                                <i class="fa-solid fa-plus text-xs"></i> Add Item
+                            </button>
+                        </div>
+                        <div class="p-4">
+                            <table class="w-full text-sm">
+                                <thead>
+                                    <tr class="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                                        <th class="text-left pb-2 pr-3">Product</th>
+                                        <th class="text-left pb-2 pr-3 w-20">Qty</th>
+                                        <th class="text-left pb-2 pr-3 w-28">Making</th>
+                                        <th class="text-left pb-2 pr-3 w-28">Asking</th>
+                                        <th class="text-left pb-2 pr-3 w-28">Selling</th>
+                                        <th class="w-8"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr class="border-t border-gray-100">
+                                        <td class="py-2 pr-3">
+                                            <select
+                                                class="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm bg-white">
+                                                <option selected>Classic White Tee</option>
+                                                <option>Floral Summer Dress</option>
+                                            </select>
+                                        </td>
+                                        <td class="py-2 pr-3"><input type="number" value="2" min="1"
+                                                class="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm" />
+                                        </td>
+                                        <td class="py-2 pr-3"><input type="number" value="300"
+                                                class="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm" />
+                                        </td>
+                                        <td class="py-2 pr-3"><input type="number" value="400"
+                                                class="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm" />
+                                        </td>
+                                        <td class="py-2 pr-3"><input type="number" value="380"
+                                                class="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm" />
+                                        </td>
+                                        <td class="py-2"><button class="text-red-400 hover:text-red-600"
+                                                onclick="$(this).closest('tr').remove()"><i
+                                                    class="fa-solid fa-times text-xs"></i></button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="px-5 py-4 border-t border-gray-100 flex items-center justify-between">
+                            <p class="text-xs text-gray-400">Last updated: Jan 18, 2024 by Admin</p>
+                            <div class="flex gap-3">
+                                <button onclick="showPage('orders')"
+                                    class="btn-secondary text-sm font-medium px-4 py-2 rounded-lg">Cancel</button>
+                                <button
+                                    class="btn-primary text-sm font-medium px-5 py-2 rounded-lg flex items-center gap-2">
+                                    <i class="fa-solid fa-check text-xs"></i> Update Order
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== ORDER VIEW ===================== -->
+            <div id="page-order-view" class="page">
+                <div class="max-w-2xl mx-auto space-y-4">
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+                        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <button onclick="showPage('orders')"
+                                    class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500">
+                                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                                </button>
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-800">Order <span
+                                            class="text-brand-600">#ORD-001</span></p>
+                                    <p class="text-xs text-gray-400">Order details and items</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="badge bg-green-50 text-green-600">Delivered</span>
+                                <button onclick="showPage('order-edit')"
+                                    class="btn-primary text-xs font-medium px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+                                    <i class="fa-solid fa-pen text-xs"></i> Edit
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-6 space-y-5">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p class="text-xs text-gray-400 mb-0.5">Customer</p>
+                                    <p class="text-sm font-semibold text-gray-800">Rahim Ahmed</p>
+                                    <p class="text-xs text-gray-500">01711-000001</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400 mb-0.5">Delivery Address</p>
+                                    <p class="text-sm text-gray-700">House 12, Road 3, Bogra Sadar</p>
+                                    <p class="text-xs text-gray-500">Thana: Bogra Sadar</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400 mb-0.5">Order Date</p>
+                                    <p class="text-sm font-medium text-gray-700">Jan 15, 2024</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-gray-400 mb-0.5">Expected Delivery</p>
+                                    <p class="text-sm font-medium text-gray-700">Jan 18, 2024</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Order Items Table -->
+                    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                        <div class="px-5 py-3.5 border-b border-gray-100">
+                            <p class="text-sm font-semibold text-gray-700">Items Ordered</p>
+                        </div>
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="bg-gray-50 text-xs font-semibold text-gray-500 uppercase">
+                                    <th class="text-left px-5 py-3">Product</th>
+                                    <th class="text-center px-3 py-3">Qty</th>
+                                    <th class="text-right px-3 py-3">Making</th>
+                                    <th class="text-right px-3 py-3">Asking</th>
+                                    <th class="text-right px-5 py-3">Selling</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50">
+                                <tr>
+                                    <td class="px-5 py-3 font-medium text-gray-800">Classic White Tee</td>
+                                    <td class="px-3 py-3 text-center text-gray-600">2</td>
+                                    <td class="px-3 py-3 text-right text-gray-500">৳ 300</td>
+                                    <td class="px-3 py-3 text-right text-gray-500">৳ 400</td>
+                                    <td class="px-5 py-3 text-right font-semibold text-gray-800">৳ 760</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-gray-50">
+                                    <td colspan="4" class="px-5 py-3 text-right text-sm font-semibold text-gray-700">
+                                        Total</td>
+                                    <td class="px-5 py-3 text-right text-base font-bold text-brand-600">৳ 760</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ===================== ADD CUSTOMER MODAL ===================== -->
+    <div id="customerModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-semibold text-gray-800">Add New Customer</p>
+                    <p class="text-xs text-gray-400">Quick customer registration</p>
+                </div>
+                <button onclick="closeModal()"
+                    class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-400 transition-colors">
+                    <i class="fa-solid fa-times text-sm"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Full Name <span
+                            class="text-red-400">*</span></label>
+                    <input type="text" id="modalCustomerName" placeholder="Customer name"
+                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 transition-all" />
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1.5">Phone <span
+                            class="text-red-400">*</span></label>
+                    <input type="tel" id="modalCustomerPhone" placeholder="01X-XXXXXXXX"
+                        class="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 transition-all" />
+                </div>
+                <div class="flex items-center gap-3 pt-1">
+                    <button onclick="closeModal()"
+                        class="flex-1 btn-secondary text-sm font-medium py-2.5 rounded-lg transition-colors">Cancel</button>
+                    <button onclick="saveCustomerFromModal()"
+                        class="flex-1 btn-primary text-sm font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-check text-xs"></i> Save Customer
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== DELETE CONFIRM MODAL ===================== -->
+    <div id="deleteModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden">
+            <div class="p-6 text-center">
+                <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center mx-auto mb-4">
+                    <i class="fa-solid fa-trash text-red-400 text-lg"></i>
+                </div>
+                <h3 class="text-base font-semibold text-gray-800 mb-1">Delete <span id="deleteItemType">Item</span>?
+                </h3>
+                <p class="text-sm text-gray-500 mb-5">This action cannot be undone. The record will be permanently
+                    removed.</p>
+                <div class="flex items-center gap-3">
+                    <button onclick="closeDeleteModal()"
+                        class="flex-1 btn-secondary text-sm font-medium py-2.5 rounded-lg">Cancel</button>
+                    <button onclick="closeDeleteModal()"
+                        class="flex-1 bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-2.5 rounded-lg transition-colors">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ---- PAGE CONFIG ----
+        const pageConfig = {
+            'products': { title: 'Products', sub: 'Manage your product catalog', btn: 'Add Product', action: () => showPage('product-add'), menu: 'products' },
+            'product-add': { title: 'Add Product', sub: 'Create a new product', btn: null, action: null, menu: 'products' },
+            'product-edit': { title: 'Edit Product', sub: 'Update product information', btn: null, action: null, menu: 'products' },
+            'product-view': { title: 'Product Details', sub: 'View product information', btn: 'Edit Product', action: () => showPage('product-edit'), menu: 'products' },
+            'customers': { title: 'Customers', sub: 'Manage customer records', btn: 'Add Customer', action: () => showPage('customer-add'), menu: 'customers' },
+            'customer-add': { title: 'Add Customer', sub: 'Register new customer', btn: null, action: null, menu: 'customers' },
+            'customer-edit': { title: 'Edit Customer', sub: 'Update customer details', btn: null, action: null, menu: 'customers' },
+            'customer-view': { title: 'Customer Profile', sub: 'Customer details & history', btn: 'Edit', action: () => showPage('customer-edit'), menu: 'customers' },
+            'orders': { title: 'Orders', sub: 'Manage all orders', btn: 'New Order', action: () => showPage('order-add'), menu: 'orders' },
+            'order-add': { title: 'New Order', sub: 'Create a new order', btn: null, action: null, menu: 'orders' },
+            'order-edit': { title: 'Edit Order', sub: 'Update order information', btn: null, action: null, menu: 'orders' },
+            'order-view': { title: 'Order Details', sub: 'View order details', btn: 'Edit Order', action: () => showPage('order-edit'), menu: 'orders' },
+        };
+
+        function showPage(pageId) {
+            $('.page').removeClass('active');
+            $('#page-' + pageId).addClass('active');
+            const cfg = pageConfig[pageId] || {};
+            $('#page-title').text(cfg.title || '');
+            $('#page-sub').text(cfg.sub || '');
+            if (cfg.btn) {
+                $('#main-action-btn').show().off('click').on('click', cfg.action);
+                $('#main-action-text').text(cfg.btn);
+            } else {
+                $('#main-action-btn').hide();
+            }
+            // Sidebar active
+            $('.nav-link').removeClass('active');
+            $(`.nav-link[data-page="${cfg.menu}"]`).addClass('active');
+            window.scrollTo(0, 0);
+        }
+
+        // Sidebar navigation
+        $('.nav-link').on('click', function (e) {
+            e.preventDefault();
+            const page = $(this).data('page');
+            showPage(page);
+        });
+
+        // Customer select — detect "Add New Customer"
+        $('#customerSelect').on('change', function () {
+            if ($(this).val() === 'add') {
+                $(this).val('');
+                openModal();
+            }
+        });
+
+        // Modals
+        function openModal() { $('#customerModal').removeClass('hidden').addClass('flex'); }
+        function closeModal() {
+            $('#customerModal').addClass('hidden').removeClass('flex');
+            $('#customerSelect').val('');
+        }
+        function saveCustomerFromModal() {
+            const name = $('#modalCustomerName').val().trim();
+            const phone = $('#modalCustomerPhone').val().trim();
+            if (!name || !phone) { alert('Name and phone are required'); return; }
+            // Simulate adding customer to dropdown
+            const opt = `<option value="new" selected>${name} — ${phone}</option>`;
+            $('#customerSelect').append(opt).val('new');
+            closeModal();
+            $('#modalCustomerName, #modalCustomerPhone').val('');
+        }
+
+        function confirmDelete(type) {
+            $('#deleteItemType').text(type.charAt(0).toUpperCase() + type.slice(1));
+            $('#deleteModal').removeClass('hidden').addClass('flex');
+        }
+        function closeDeleteModal() { $('#deleteModal').addClass('hidden').removeClass('flex'); }
+
+        // Add order row
+        function addOrderRow() {
+            const row = `<tr class="border-t border-gray-100">
+      <td class="py-2 pr-3">
+        <select class="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm bg-white">
+          <option>Select product...</option>
+          <option>Classic White Tee</option>
+          <option>Floral Summer Dress</option>
+          <option>Slim Fit Chinos</option>
+        </select>
+      </td>
+      <td class="py-2 pr-3"><input type="number" value="1" min="1" class="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm"/></td>
+      <td class="py-2 pr-3"><input type="number" placeholder="৳" class="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm"/></td>
+      <td class="py-2 pr-3"><input type="number" placeholder="৳" class="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm"/></td>
+      <td class="py-2 pr-3"><input type="number" placeholder="৳" class="w-full border border-gray-200 rounded-lg px-2.5 py-2 text-sm"/></td>
+      <td class="py-2"><button class="text-red-400 hover:text-red-600" onclick="$(this).closest('tr').remove()"><i class="fa-solid fa-times text-xs"></i></button></td>
+    </tr>`;
+            $('#orderItemsBody').append(row);
+        }
+
+        // Close modals on backdrop click
+        $('#customerModal, #deleteModal').on('click', function (e) {
+            if ($(e.target).is('#customerModal')) closeModal();
+            if ($(e.target).is('#deleteModal')) closeDeleteModal();
+        });
+
+        // Init DataTables
+        $(document).ready(function () {
+            $('#productsTable').DataTable({ pageLength: 10, language: { search: '', searchPlaceholder: 'Search products...', lengthMenu: 'Show _MENU_ rows' }, order: [] });
+            $('#customersTable').DataTable({ pageLength: 10, language: { search: '', searchPlaceholder: 'Search customers...', lengthMenu: 'Show _MENU_ rows' }, order: [] });
+            $('#ordersTable').DataTable({ pageLength: 10, language: { search: '', searchPlaceholder: 'Search orders...', lengthMenu: 'Show _MENU_ rows' }, order: [] });
+            // Set top-bar btn click
+            $('#main-action-btn').on('click', () => showPage('product-add'));
+        });
+    </script>
+</body>
+
+</html>
