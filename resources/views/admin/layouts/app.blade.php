@@ -207,21 +207,30 @@
     @stack('styles')
 </head>
 
-<body class="bg-surface min-h-screen flex text-gray-800">
+<body class="bg-surface min-h-screen flex text-gray-800 antialiased overflow-x-hidden">
 
-    <!-- SIDEBAR -->
-    <aside id="sidebar" class="w-64 min-h-screen bg-white border-r border-gray-100 flex flex-col flex-shrink-0 z-20 shadow-sm">
-        <div class="flex items-center justify-between px-5 py-5 border-b border-gray-100">
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div id="sidebarBackdrop" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity"></div>
+
+    <!-- SIDEBAR (Slide-over on mobile, static on desktop) -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 min-h-screen bg-white border-r border-gray-100 flex flex-col flex-shrink-0 shadow-xl lg:shadow-sm transform -translate-x-full transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto">
+        <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
             <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-xl bg-brand-500 flex items-center justify-center shadow-sm shadow-brand-500/30">
                     <i class="fa-solid fa-store text-white text-sm"></i>
                 </div>
                 <span class="font-bold text-gray-800 text-base tracking-tight">ShopAdmin</span>
             </a>
-            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-brand-50 text-brand-600">Admin</span>
+            <div class="flex items-center gap-2">
+                <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-brand-50 text-brand-600">Admin</span>
+                <!-- Mobile Close Sidebar Button -->
+                <button type="button" id="sidebarCloseBtn" class="lg:hidden p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors" aria-label="Close sidebar">
+                    <i class="fa-solid fa-xmark text-base"></i>
+                </button>
+            </div>
         </div>
 
-        <nav class="flex-1 py-4 px-3 space-y-1">
+        <nav class="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
             <p class="text-[11px] font-semibold text-gray-400 px-3 pt-2 pb-1 uppercase tracking-widest">Main Menu</p>
             
             <a href="{{ route('admin.dashboard') }}"
@@ -250,7 +259,7 @@
         </nav>
 
         <!-- Current Admin User & Logout -->
-        <div class="px-4 py-4 border-t border-gray-100 bg-gray-50/50">
+        <div class="px-4 py-4 border-t border-gray-100 bg-gray-50/50 mt-auto">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="w-9 h-9 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0">
@@ -274,44 +283,50 @@
     </aside>
 
     <!-- MAIN CONTAINER -->
-    <div class="flex-1 flex flex-col min-w-0">
+    <div class="flex-1 flex flex-col min-w-0 w-full overflow-x-hidden">
 
         <!-- TOP BAR -->
-        <header class="bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between sticky top-0 z-10 shadow-sm/50">
-            <div>
-                <h1 class="text-lg font-bold text-gray-800">@yield('page_title', 'Dashboard')</h1>
-                <p class="text-xs text-gray-400 mt-0.5">@yield('page_sub', 'Manage your e-commerce platform')</p>
+        <header class="bg-white border-b border-gray-100 px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky top-0 z-30 shadow-sm/50">
+            <div class="flex items-center gap-3 min-w-0">
+                <!-- Hamburger button for Mobile -->
+                <button type="button" id="sidebarToggleBtn" class="lg:hidden p-2 -ml-1 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors" aria-label="Open sidebar">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+                <div class="min-w-0">
+                    <h1 class="text-base sm:text-lg font-bold text-gray-800 leading-tight truncate">@yield('page_title', 'Dashboard')</h1>
+                    <p class="text-xs text-gray-400 mt-0.5 truncate hidden sm:block">@yield('page_sub', 'Manage your e-commerce platform')</p>
+                </div>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center flex-wrap gap-2 sm:gap-3 self-end sm:self-auto">
                 @yield('top_actions')
             </div>
         </header>
 
         <!-- FLASH NOTIFICATIONS -->
-        <div class="px-6 pt-4">
+        <div class="px-3 sm:px-6 pt-3">
             @if(session('success'))
                 <div class="mb-3 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-700 text-sm flex items-center justify-between shadow-sm">
                     <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-circle-check text-emerald-500"></i>
-                        <span>{{ session('success') }}</span>
+                        <i class="fa-solid fa-circle-check text-emerald-500 flex-shrink-0"></i>
+                        <span class="text-xs sm:text-sm">{{ session('success') }}</span>
                     </div>
-                    <button onclick="$(this).parent().fadeOut()" class="text-emerald-400 hover:text-emerald-600"><i class="fa-solid fa-times text-xs"></i></button>
+                    <button onclick="$(this).parent().fadeOut()" class="text-emerald-400 hover:text-emerald-600 ml-2"><i class="fa-solid fa-times text-xs"></i></button>
                 </div>
             @endif
 
             @if(session('error'))
                 <div class="mb-3 px-4 py-3 rounded-xl bg-red-50 border border-red-100 text-red-700 text-sm flex items-center justify-between shadow-sm">
                     <div class="flex items-center gap-2">
-                        <i class="fa-solid fa-circle-exclamation text-red-500"></i>
-                        <span>{{ session('error') }}</span>
+                        <i class="fa-solid fa-circle-exclamation text-red-500 flex-shrink-0"></i>
+                        <span class="text-xs sm:text-sm">{{ session('error') }}</span>
                     </div>
-                    <button onclick="$(this).parent().fadeOut()" class="text-red-400 hover:text-red-600"><i class="fa-solid fa-times text-xs"></i></button>
+                    <button onclick="$(this).parent().fadeOut()" class="text-red-400 hover:text-red-600 ml-2"><i class="fa-solid fa-times text-xs"></i></button>
                 </div>
             @endif
 
             @if($errors->any())
                 <div class="mb-3 px-4 py-3 rounded-xl bg-rose-50 border border-rose-100 text-rose-700 text-sm shadow-sm">
-                    <p class="font-semibold mb-1 flex items-center gap-2"><i class="fa-solid fa-triangle-exclamation"></i> Please fix the following errors:</p>
+                    <p class="font-semibold mb-1 flex items-center gap-2 text-xs sm:text-sm"><i class="fa-solid fa-triangle-exclamation flex-shrink-0"></i> Please fix the following errors:</p>
                     <ul class="list-disc list-inside text-xs space-y-0.5">
                         @foreach($errors->all() as $error)
                             <li>{{ $error }}</li>
@@ -322,29 +337,29 @@
         </div>
 
         <!-- MAIN CONTENT -->
-        <main class="flex-1 p-6">
+        <main class="flex-1 p-3 sm:p-5 md:p-6 w-full max-w-full overflow-x-hidden">
             @yield('content')
         </main>
     </div>
 
     <!-- GLOBAL DELETE CONFIRM MODAL -->
-    <div id="deleteModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden border border-gray-100">
-            <div class="p-6 text-center">
+    <div id="deleteModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-auto overflow-hidden border border-gray-100">
+            <div class="p-5 sm:p-6 text-center">
                 <div class="w-12 h-12 rounded-full bg-red-50 text-red-500 flex items-center justify-center mx-auto mb-4">
                     <i class="fa-solid fa-trash text-lg"></i>
                 </div>
                 <h3 class="text-base font-bold text-gray-800 mb-1">Delete <span id="deleteItemType">Record</span>?</h3>
-                <p class="text-sm text-gray-500 mb-6">This action cannot be undone. Are you sure you want to remove this record?</p>
+                <p class="text-xs sm:text-sm text-gray-500 mb-6">This action cannot be undone. Are you sure you want to remove this record?</p>
                 
                 <form id="deleteForm" method="POST" action="">
                     @csrf
                     @method('DELETE')
                     <div class="flex items-center gap-3">
-                        <button type="button" onclick="closeDeleteModal()" class="flex-1 btn-secondary text-sm font-medium py-2.5 rounded-lg transition-colors">
+                        <button type="button" onclick="closeDeleteModal()" class="flex-1 btn-secondary text-xs sm:text-sm font-medium py-2.5 rounded-lg transition-colors">
                             Cancel
                         </button>
-                        <button type="submit" class="flex-1 bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-2.5 rounded-lg transition-colors shadow-sm shadow-red-500/20">
+                        <button type="submit" class="flex-1 bg-red-500 hover:bg-red-600 text-white text-xs sm:text-sm font-medium py-2.5 rounded-lg transition-colors shadow-sm shadow-red-500/20">
                             Delete
                         </button>
                     </div>
@@ -359,6 +374,33 @@
             $('.select2').select2({
                 width: '100%'
             });
+        });
+
+        // Mobile Sidebar Toggle Logic
+        const $sidebar = $('#sidebar');
+        const $backdrop = $('#sidebarBackdrop');
+
+        function openSidebar() {
+            $sidebar.removeClass('-translate-x-full');
+            $backdrop.removeClass('hidden');
+            $('body').addClass('overflow-hidden lg:overflow-auto');
+        }
+
+        function closeSidebar() {
+            $sidebar.addClass('-translate-x-full');
+            $backdrop.addClass('hidden');
+            $('body').removeClass('overflow-hidden lg:overflow-auto');
+        }
+
+        $('#sidebarToggleBtn').on('click', openSidebar);
+        $('#sidebarCloseBtn').on('click', closeSidebar);
+        $backdrop.on('click', closeSidebar);
+
+        // Auto-close mobile sidebar when clicking a link
+        $('#sidebar nav a').on('click', function() {
+            if ($(window).width() < 1024) {
+                closeSidebar();
+            }
         });
 
         // Global Delete Modal Helper

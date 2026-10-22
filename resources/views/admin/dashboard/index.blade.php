@@ -111,10 +111,10 @@
                 <a href="{{ route('admin.orders.index') }}" class="text-xs font-medium text-brand-600 hover:text-brand-700">View all &rarr;</a>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left">
+            <div class="overflow-x-auto w-full">
+                <table class="w-full text-left min-w-[650px]">
                     <thead>
-                        <tr class="bg-gray-50/50 text-[11px] font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                        <tr class="bg-gray-50/50 text-[11px] font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100 whitespace-nowrap">
                             <th class="py-3 px-5">Order No</th>
                             <th class="py-3 px-4">Customer</th>
                             <th class="py-3 px-4">Date</th>

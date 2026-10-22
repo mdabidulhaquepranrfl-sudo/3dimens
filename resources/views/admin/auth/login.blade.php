@@ -44,7 +44,7 @@
         </div>
 
         <!-- Login Card -->
-        <div class="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/50 p-8">
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-xl shadow-gray-200/50 p-6 sm:p-8">
             @if(session('success'))
                 <div class="mb-5 p-3.5 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-medium flex items-center gap-2">
                     <i class="fa-solid fa-circle-check"></i>

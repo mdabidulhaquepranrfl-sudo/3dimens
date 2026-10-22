@@ -14,13 +14,13 @@
 @endsection
 
 @section('content')
-<div class="max-w-3xl mx-auto space-y-5">
+<div class="w-full max-w-4xl mx-auto space-y-4 sm:space-y-5">
 
     <!-- Order Header Info Card -->
     <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <div class="px-4 sm:px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold">
+                <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center font-bold flex-shrink-0">
                     <i class="fa-solid fa-receipt"></i>
                 </div>
                 <div>
@@ -30,7 +30,7 @@
                     <p class="text-xs text-gray-400">Placed on {{ $order->order_date ? $order->order_date->format('M d, Y') : '-' }}</p>
                 </div>
             </div>
-            <div>
+            <div class="self-start sm:self-auto">
                 @php
                     $statusClass = match(strtolower($order->status)) {
                         'delivered' => 'bg-emerald-50 text-emerald-600',
@@ -46,8 +46,8 @@
             </div>
         </div>
 
-        <div class="p-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="p-4 sm:p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <!-- Customer Details -->
                 <div class="bg-gray-50/70 rounded-xl p-4">
                     <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Customer Details</p>
@@ -81,64 +81,66 @@
 
     <!-- Items Ordered Table -->
     <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+        <div class="px-4 sm:px-5 py-4 border-b border-gray-100 flex items-center justify-between">
             <h3 class="text-sm font-bold text-gray-800">Items Ordered</h3>
             <span class="badge bg-brand-50 text-brand-600">{{ $order->total_items }} total {{ Str::plural('piece', $order->total_items) }}</span>
         </div>
 
-        <table class="w-full text-sm">
-            <thead>
-                <tr class="bg-gray-50 text-xs font-semibold text-gray-500 uppercase border-b border-gray-100">
-                    <th class="text-left px-5 py-3">Product</th>
-                    <th class="text-center px-3 py-3">Qty</th>
-                    <th class="text-right px-3 py-3">Making</th>
-                    <th class="text-right px-3 py-3">Asking</th>
-                    <th class="text-right px-5 py-3">Selling</th>
-                    <th class="text-right px-5 py-3">Subtotal</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-50">
-                @foreach($order->orderDetails as $item)
-                    <tr class="hover:bg-brand-50/20">
-                        <td class="px-5 py-3.5">
-                            @if($item->product)
-                                <a href="{{ route('admin.products.show', $item->product->id) }}" class="font-semibold text-gray-800 hover:text-brand-600">
-                                    {{ $item->product->name }}
-                                </a>
-                                @if($item->product->category)
-                                    <span class="badge bg-gray-100 text-gray-500 text-[10px] ml-2">{{ $item->product->category }}</span>
+        <div class="overflow-x-auto w-full">
+            <table class="w-full text-sm min-w-[550px]">
+                <thead>
+                    <tr class="bg-gray-50 text-xs font-semibold text-gray-500 uppercase border-b border-gray-100 whitespace-nowrap">
+                        <th class="text-left px-4 sm:px-5 py-3">Product</th>
+                        <th class="text-center px-3 py-3">Qty</th>
+                        <th class="text-right px-3 py-3">Making</th>
+                        <th class="text-right px-3 py-3">Asking</th>
+                        <th class="text-right px-4 sm:px-5 py-3">Selling</th>
+                        <th class="text-right px-4 sm:px-5 py-3">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50">
+                    @foreach($order->orderDetails as $item)
+                        <tr class="hover:bg-brand-50/20 whitespace-nowrap">
+                            <td class="px-4 sm:px-5 py-3.5">
+                                @if($item->product)
+                                    <a href="{{ route('admin.products.show', $item->product->id) }}" class="font-semibold text-gray-800 hover:text-brand-600">
+                                        {{ $item->product->name }}
+                                    </a>
+                                    @if($item->product->category)
+                                        <span class="badge bg-gray-100 text-gray-500 text-[10px] ml-1.5">{{ $item->product->category }}</span>
+                                    @endif
+                                @else
+                                    <span class="text-gray-400">Product removed</span>
                                 @endif
-                            @else
-                                <span class="text-gray-400">Product removed</span>
-                            @endif
+                            </td>
+                            <td class="px-3 py-3.5 text-center font-medium text-gray-700">{{ $item->quantity }}</td>
+                            <td class="px-3 py-3.5 text-right text-gray-400">
+                                {{ $item->making_price ? '৳ ' . number_format($item->making_price, 2) : '-' }}
+                            </td>
+                            <td class="px-3 py-3.5 text-right text-gray-400">
+                                {{ $item->asking_price ? '৳ ' . number_format($item->asking_price, 2) : '-' }}
+                            </td>
+                            <td class="px-4 sm:px-5 py-3.5 text-right font-medium text-gray-800">
+                                ৳ {{ number_format($item->selling_price, 2) }}
+                            </td>
+                            <td class="px-4 sm:px-5 py-3.5 text-right font-bold text-gray-800">
+                                ৳ {{ number_format($item->subtotal, 2) }}
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+                <tfoot>
+                    <tr class="bg-gray-50/80 border-t-2 border-gray-100 whitespace-nowrap">
+                        <td colspan="5" class="px-4 sm:px-5 py-3.5 text-right text-sm font-bold text-gray-700">
+                            Total Amount:
                         </td>
-                        <td class="px-3 py-3.5 text-center font-medium text-gray-700">{{ $item->quantity }}</td>
-                        <td class="px-3 py-3.5 text-right text-gray-400">
-                            {{ $item->making_price ? '৳ ' . number_format($item->making_price, 2) : '-' }}
-                        </td>
-                        <td class="px-3 py-3.5 text-right text-gray-400">
-                            {{ $item->asking_price ? '৳ ' . number_format($item->asking_price, 2) : '-' }}
-                        </td>
-                        <td class="px-5 py-3.5 text-right font-medium text-gray-800">
-                            ৳ {{ number_format($item->selling_price, 2) }}
-                        </td>
-                        <td class="px-5 py-3.5 text-right font-bold text-gray-800">
-                            ৳ {{ number_format($item->subtotal, 2) }}
+                        <td class="px-4 sm:px-5 py-3.5 text-right text-base sm:text-lg font-extrabold text-brand-600">
+                            ৳ {{ number_format($order->total_amount, 2) }}
                         </td>
                     </tr>
-                @endforeach
-            </tbody>
-            <tfoot>
-                <tr class="bg-gray-50/80 border-t-2 border-gray-100">
-                    <td colspan="5" class="px-5 py-3.5 text-right text-sm font-bold text-gray-700">
-                        Total Amount:
-                    </td>
-                    <td class="px-5 py-3.5 text-right text-lg font-extrabold text-brand-600">
-                        ৳ {{ number_format($order->total_amount, 2) }}
-                    </td>
-                </tr>
-            </tfoot>
-        </table>
+                </tfoot>
+            </table>
+        </div>
     </div>
 
 </div>

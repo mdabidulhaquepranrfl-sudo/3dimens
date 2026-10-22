@@ -14,10 +14,10 @@
 @endsection
 
 @section('content')
-<div class="max-w-3xl mx-auto space-y-6">
+<div class="w-full max-w-4xl mx-auto space-y-4 sm:space-y-6">
 
     <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        <div class="p-6">
+        <div class="p-4 sm:p-6">
             <div class="flex flex-col sm:flex-row items-start gap-6 pb-6 border-b border-gray-100">
                 @if($product->image)
                     <img src="{{ $product->image }}" alt="{{ $product->name }}" class="w-32 h-32 rounded-2xl object-cover border border-gray-100 shadow-sm flex-shrink-0" onerror="this.src='https://placehold.co/128x128/e0e7ff/4f72d9?text=Product'" />
@@ -77,10 +77,10 @@
             <h3 class="text-sm font-bold text-gray-800">Order History for this Product</h3>
             <span class="badge bg-brand-50 text-brand-600">{{ $product->orderDetails->count() }} sales</span>
         </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+        <div class="overflow-x-auto w-full">
+            <table class="w-full text-left text-sm min-w-[550px]">
                 <thead>
-                    <tr class="bg-gray-50/50 text-[11px] font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                    <tr class="bg-gray-50/50 text-[11px] font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-100 whitespace-nowrap">
                         <th class="py-3 px-5">Order No</th>
                         <th class="py-3 px-4">Qty</th>
                         <th class="py-3 px-4">Selling Price</th>

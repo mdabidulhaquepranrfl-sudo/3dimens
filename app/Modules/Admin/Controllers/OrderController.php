@@ -49,14 +49,14 @@ class OrderController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'customer_id' => ['required', 'exists:customers,id'],
+            'customer_id' => ['required', 'integer'],
             'order_date' => ['required', 'date'],
             'exp_delv_date' => ['nullable', 'date'],
             'address' => ['nullable', 'string', 'max:1000'],
-            'thana_id' => ['nullable', 'exists:thana,id'],
-            'status' => ['required', 'string', 'max:50'],
+            'thana_id' => ['nullable', 'integer'],
+            'status_id' => ['required', 'integer'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', 'exists:products,id'],
+            'items.*.product_id' => ['required', 'integer'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
             'items.*.making_price' => ['nullable', 'numeric', 'min:0'],
             'items.*.asking_price' => ['nullable', 'numeric', 'min:0'],
@@ -76,6 +76,9 @@ class OrderController extends Controller
                 $orderNo = 'ORD-' . str_pad((string)$nextNumber, 4, '0', STR_PAD_LEFT);
             }
 
+            $statusModel = Status::find($validated['status_id']);
+            $statusTag = $statusModel?->tag ?? 'pending';
+
             $order = Order::create([
                 'order_no' => $orderNo,
                 'customer_id' => $validated['customer_id'],
@@ -83,7 +86,8 @@ class OrderController extends Controller
                 'exp_delv_date' => $validated['exp_delv_date'] ?? null,
                 'address' => $validated['address'] ?? null,
                 'thana_id' => $validated['thana_id'] ?? null,
-                'status' => $validated['status'],
+                'status_id' => $validated['status_id'],
+                'status' => $statusTag,
                 'created_by' => Auth::guard('admin')->id(),
             ]);
 
@@ -145,7 +149,7 @@ class OrderController extends Controller
             'exp_delv_date' => ['nullable', 'date'],
             'address' => ['nullable', 'string', 'max:1000'],
             'thana_id' => ['nullable', 'exists:thana,id'],
-            'status' => ['required', 'string', 'max:50'],
+            'status_id' => ['required', 'integer', 'exists:status,id'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'exists:products,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
@@ -156,6 +160,9 @@ class OrderController extends Controller
 
         DB::beginTransaction();
         try {
+            $statusModel = Status::find($validated['status_id']);
+            $statusTag = $statusModel?->tag ?? $order->status;
+
             $order->update([
                 'order_no' => $validated['order_no'],
                 'customer_id' => $validated['customer_id'],
@@ -163,7 +170,8 @@ class OrderController extends Controller
                 'exp_delv_date' => $validated['exp_delv_date'] ?? null,
                 'address' => $validated['address'] ?? null,
                 'thana_id' => $validated['thana_id'] ?? null,
-                'status' => $validated['status'],
+                'status_id' => $validated['status_id'],
+                'status' => $statusTag,
                 'updated_by' => Auth::guard('admin')->id(),
             ]);
 

@@ -18,6 +18,7 @@ class Order extends Model
         'exp_delv_date',
         'address',
         'thana_id',
+        'status_id',
         'status',
         'created_by',
         'updated_by',
@@ -29,6 +30,11 @@ class Order extends Model
             'order_date' => 'date',
             'exp_delv_date' => 'date',
         ];
+    }
+
+    public function orderStatus(): BelongsTo
+    {
+        return $this->belongsTo(Status::class, 'status_id');
     }
 
     public function customer(): BelongsTo

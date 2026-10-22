@@ -19,6 +19,7 @@ return new class extends Migration
             $table->date('exp_delv_date')->nullable();
             $table->text('address')->nullable();
             $table->foreignId('thana_id')->nullable()->constrained('thana')->nullOnDelete();
+            $table->foreignId('status_id')->nullable()->constrained('status')->nullOnDelete();
             $table->string('status')->default('pending');
             $table->integer('created_by')->nullable();
             $table->integer('updated_by')->nullable();

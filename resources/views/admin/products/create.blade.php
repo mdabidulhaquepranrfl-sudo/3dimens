@@ -5,9 +5,9 @@
 @section('page_sub', 'Create a new product in the catalog')
 
 @section('content')
-<div class="max-w-2xl mx-auto">
-    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+<div class="w-full max-w-4xl mx-auto">
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100 flex items-center gap-3">
             <a href="{{ route('admin.products.index') }}" class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors">
                 <i class="fa-solid fa-arrow-left text-sm"></i>
             </a>
@@ -17,10 +17,10 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data" class="p-6 space-y-5">
+        <form method="POST" action="{{ route('admin.products.store') }}" enctype="multipart/form-data" class="p-4 sm:p-6 space-y-4 sm:space-y-5">
             @csrf
 
-            <div class="grid grid-cols-1 gap-5">
+            <div class="grid grid-cols-1 gap-4 sm:gap-5">
                 <div>
                     <label class="block text-xs font-semibold text-gray-600 mb-1.5">
                         Product Name <span class="text-red-400">*</span>
@@ -50,7 +50,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1.5">Category</label>
                         <input type="text" name="category" value="{{ old('category') }}" placeholder="e.g. T-Shirt, Dress, Pants"
@@ -63,7 +63,7 @@
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1.5">Regular Price (৳)</label>
                         <input type="number" step="0.01" min="0" name="price" value="{{ old('price') }}" placeholder="0.00"
@@ -79,11 +79,11 @@
                 </div>
             </div>
 
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-                <a href="{{ route('admin.products.index') }}" class="btn-secondary text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+            <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3 pt-4 border-t border-gray-100">
+                <a href="{{ route('admin.products.index') }}" class="btn-secondary text-sm font-medium px-4 py-2.5 rounded-lg transition-colors text-center">
                     Cancel
                 </a>
-                <button type="submit" class="btn-primary text-sm font-medium px-5 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-sm">
+                <button type="submit" class="btn-primary text-sm font-medium px-5 py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm">
                     <i class="fa-solid fa-check text-xs"></i> Save Product
                 </button>
             </div>

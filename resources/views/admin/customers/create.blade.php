@@ -5,9 +5,9 @@
 @section('page_sub', 'Register a new customer record')
 
 @section('content')
-<div class="max-w-md mx-auto">
-    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-3">
+<div class="w-full max-w-lg mx-auto">
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100 flex items-center gap-3">
             <a href="{{ route('admin.customers.index') }}" class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors">
                 <i class="fa-solid fa-arrow-left text-sm"></i>
             </a>
@@ -17,7 +17,7 @@
             </div>
         </div>
 
-        <form method="POST" action="{{ route('admin.customers.store') }}" class="p-6 space-y-4">
+        <form method="POST" action="{{ route('admin.customers.store') }}" class="p-4 sm:p-6 space-y-4">
             @csrf
 
             <div>
@@ -37,11 +37,11 @@
                 <p class="text-[11px] text-gray-400 mt-1">Phone number must be unique across all customers.</p>
             </div>
 
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-                <a href="{{ route('admin.customers.index') }}" class="btn-secondary text-sm font-medium px-4 py-2 rounded-lg transition-colors">
+            <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5 sm:gap-3 pt-4 border-t border-gray-100">
+                <a href="{{ route('admin.customers.index') }}" class="btn-secondary text-sm font-medium px-4 py-2.5 rounded-lg transition-colors text-center">
                     Cancel
                 </a>
-                <button type="submit" class="btn-primary text-sm font-medium px-5 py-2 rounded-lg transition-colors flex items-center gap-2 shadow-sm">
+                <button type="submit" class="btn-primary text-sm font-medium px-5 py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm">
                     <i class="fa-solid fa-check text-xs"></i> Save Customer
                 </button>
             </div>

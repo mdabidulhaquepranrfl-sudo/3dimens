@@ -12,14 +12,14 @@
 @endsection
 
 @section('content')
-<div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-    <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+<div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden w-full">
+    <div class="px-4 sm:px-5 py-3.5 sm:py-4 border-b border-gray-100 flex items-center justify-between">
         <p class="text-sm font-semibold text-gray-700">All Customers</p>
         <span class="badge bg-brand-50 text-brand-600">{{ $customers->count() }} customers</span>
     </div>
 
-    <div class="p-4 overflow-x-auto">
-        <table id="customersTable" class="w-full">
+    <div class="p-3 sm:p-4 overflow-x-auto w-full">
+        <table id="customersTable" class="w-full min-w-[600px]">
             <thead>
                 <tr>
                     <th class="w-12">#</th>

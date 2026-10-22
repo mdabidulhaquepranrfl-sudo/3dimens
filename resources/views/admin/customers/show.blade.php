@@ -14,17 +14,17 @@
 @endsection
 
 @section('content')
-<div class="max-w-3xl mx-auto space-y-6">
+<div class="w-full max-w-4xl mx-auto space-y-4 sm:space-y-6">
 
     <!-- Customer Card -->
-    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-        <div class="flex items-center gap-5 mb-6">
-            <div class="w-16 h-16 rounded-2xl bg-brand-100 text-brand-600 font-bold text-2xl flex items-center justify-center flex-shrink-0 shadow-sm">
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-4 sm:p-6">
+        <div class="flex items-center gap-4 sm:gap-5 mb-5 sm:mb-6">
+            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-brand-100 text-brand-600 font-bold text-xl sm:text-2xl flex items-center justify-center flex-shrink-0 shadow-sm">
                 {{ strtoupper(substr($customer->name, 0, 2)) }}
             </div>
-            <div>
-                <h2 class="text-xl font-bold text-gray-800">{{ $customer->name }}</h2>
-                <p class="text-sm text-gray-500 mt-1 flex items-center gap-1.5">
+            <div class="min-w-0">
+                <h2 class="text-lg sm:text-xl font-bold text-gray-800 truncate">{{ $customer->name }}</h2>
+                <p class="text-xs sm:text-sm text-gray-500 mt-1 flex items-center gap-1.5">
                     <i class="fa-solid fa-phone text-xs text-gray-400"></i>
                     <span>{{ $customer->phone }}</span>
                 </p>
@@ -34,17 +34,17 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-4">
-            <div class="bg-brand-50/80 rounded-xl p-4 text-center">
-                <p class="text-2xl font-extrabold text-brand-600">{{ $totalOrders }}</p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            <div class="bg-brand-50/80 rounded-xl p-3 sm:p-4 text-center">
+                <p class="text-xl sm:text-2xl font-extrabold text-brand-600">{{ $totalOrders }}</p>
                 <p class="text-xs font-medium text-gray-500 mt-0.5">Total Orders</p>
             </div>
-            <div class="bg-emerald-50/80 rounded-xl p-4 text-center">
-                <p class="text-2xl font-extrabold text-emerald-600">{{ $deliveredOrders }}</p>
+            <div class="bg-emerald-50/80 rounded-xl p-3 sm:p-4 text-center">
+                <p class="text-xl sm:text-2xl font-extrabold text-emerald-600">{{ $deliveredOrders }}</p>
                 <p class="text-xs font-medium text-gray-500 mt-0.5">Delivered</p>
             </div>
-            <div class="bg-amber-50/80 rounded-xl p-4 text-center">
-                <p class="text-2xl font-extrabold text-amber-600">{{ $pendingOrders }}</p>
+            <div class="bg-amber-50/80 rounded-xl p-3 sm:p-4 text-center">
+                <p class="text-xl sm:text-2xl font-extrabold text-amber-600">{{ $pendingOrders }}</p>
                 <p class="text-xs font-medium text-gray-500 mt-0.5">Pending</p>
             </div>
         </div>

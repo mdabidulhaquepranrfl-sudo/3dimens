@@ -5,29 +5,29 @@
 @section('page_sub', 'Create a new customer order')
 
 @section('content')
-<div class="max-w-4xl mx-auto space-y-5">
+<div class="w-full max-w-5xl mx-auto space-y-4 sm:space-y-5">
 
-    <form id="orderForm" method="POST" action="{{ route('admin.orders.store') }}" class="space-y-5">
+    <form id="orderForm" method="POST" action="{{ route('admin.orders.store') }}" class="space-y-4 sm:space-y-5">
         @csrf
 
         <!-- Order Information Card -->
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
-            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+            <div class="px-4 sm:px-6 py-3.5 sm:py-4 border-b border-gray-100 flex items-center justify-between">
                 <div class="flex items-center gap-3">
                     <a href="{{ route('admin.orders.index') }}" class="p-1.5 rounded-lg hover:bg-gray-100 text-gray-500 transition-colors">
                         <i class="fa-solid fa-arrow-left text-sm"></i>
                     </a>
                     <div>
                         <p class="text-sm font-semibold text-gray-800">Order Header</p>
-                        <p class="text-xs text-gray-400">Fill in the order and customer information</p>
+                        <p class="text-xs text-gray-400 hidden sm:block">Fill in the order and customer information</p>
                     </div>
                 </div>
             </div>
 
-            <div class="p-6 space-y-5">
+            <div class="p-4 sm:p-6 space-y-4 sm:space-y-5">
                 <!-- Customer Select with Quick Add -->
                 <div>
-                    <div class="flex items-center justify-between mb-1.5">
+                    <div class="flex items-center justify-between mb-1.5 flex-wrap gap-1">
                         <label class="block text-xs font-semibold text-gray-600">
                             Customer <span class="text-red-400">*</span>
                         </label>
@@ -78,9 +78,9 @@
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-gray-600 mb-1.5">Status <span class="text-red-400">*</span></label>
-                        <select name="status" required class="select2 w-full">
+                        <select name="status_id" required class="select2 w-full">
                             @foreach($statuses as $st)
-                                <option value="{{ $st->tag }}" {{ old('status', 'pending') == $st->tag ? 'selected' : '' }}>
+                                <option value="{{ $st->id }}" {{ old('status_id', $statuses->firstWhere('tag', 'pending')?->id ?? 1) == $st->id ? 'selected' : '' }}>
                                     {{ $st->name }}
                                 </option>
                             @endforeach
@@ -92,21 +92,21 @@
 
         <!-- Order Items Card -->
         <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-            <div class="px-5 py-3.5 border-b border-gray-100 flex items-center justify-between">
+            <div class="px-4 sm:px-5 py-3.5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                     <p class="text-sm font-semibold text-gray-700">Order Items</p>
                     <p class="text-xs text-gray-400">Select products and set item pricing</p>
                 </div>
                 <button type="button" onclick="addOrderRow()"
-                    class="btn-secondary text-xs font-semibold px-3 py-1.5 rounded-lg text-brand-600 hover:text-brand-700 flex items-center gap-1.5 border border-gray-200">
+                    class="btn-secondary text-xs font-semibold px-3 py-1.5 rounded-lg text-brand-600 hover:text-brand-700 flex items-center justify-center gap-1.5 border border-gray-200 self-start sm:self-auto">
                     <i class="fa-solid fa-plus text-xs"></i> Add Item
                 </button>
             </div>
 
-            <div class="p-4 overflow-x-auto">
-                <table class="w-full text-sm">
+            <div class="p-3 sm:p-4 overflow-x-auto w-full">
+                <table class="w-full text-sm min-w-[700px]">
                     <thead>
-                        <tr class="text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100">
+                        <tr class="text-xs font-semibold text-gray-500 uppercase tracking-wide border-b border-gray-100 whitespace-nowrap">
                             <th class="text-left pb-3 pr-3" style="min-width: 220px;">Product <span class="text-red-400">*</span></th>
                             <th class="text-left pb-3 pr-3 w-20">Qty <span class="text-red-400">*</span></th>
                             <th class="text-left pb-3 pr-3 w-28">Making Price</th>
@@ -156,7 +156,7 @@
                         </tr>
                     </tbody>
                     <tfoot>
-                        <tr class="border-t-2 border-gray-100 bg-gray-50/50">
+                        <tr class="border-t-2 border-gray-100 bg-gray-50/50 whitespace-nowrap">
                             <td colspan="5" class="py-3 pr-3 text-right text-sm font-bold text-gray-700">Estimated Total:</td>
                             <td class="py-3 pr-3 text-right text-base font-extrabold text-brand-600" id="orderGrandTotal">৳ 0.00</td>
                             <td></td>
@@ -165,9 +165,9 @@
                 </table>
             </div>
 
-            <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3 bg-gray-50/20">
-                <a href="{{ route('admin.orders.index') }}" class="btn-secondary text-sm font-medium px-4 py-2 rounded-lg">Cancel</a>
-                <button type="submit" class="btn-primary text-sm font-medium px-6 py-2 rounded-lg flex items-center gap-2 shadow-sm">
+            <div class="px-4 sm:px-6 py-4 border-t border-gray-100 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 bg-gray-50/20">
+                <a href="{{ route('admin.orders.index') }}" class="btn-secondary text-sm font-medium px-4 py-2.5 rounded-lg text-center">Cancel</a>
+                <button type="submit" class="btn-primary text-sm font-medium px-6 py-2.5 rounded-lg flex items-center justify-center gap-2 shadow-sm">
                     <i class="fa-solid fa-check text-xs"></i> Place Order
                 </button>
             </div>
@@ -177,9 +177,9 @@
 </div>
 
 <!-- QUICK ADD CUSTOMER MODAL -->
-<div id="customerModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden border border-gray-100">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+<div id="customerModal" class="fixed inset-0 z-50 hidden flex items-center justify-center modal-backdrop p-3 sm:p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-auto overflow-hidden border border-gray-100">
+        <div class="px-5 sm:px-6 py-4 border-b border-gray-100 flex items-center justify-between">
             <div>
                 <p class="text-sm font-semibold text-gray-800">Add New Customer</p>
                 <p class="text-xs text-gray-400">Quick customer registration</p>
